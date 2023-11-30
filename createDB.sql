@@ -1,0 +1,90 @@
+CREATE DATABASE Ecommerce
+GO
+USE Ecommerce
+GO
+CREATE TABLE Users(
+UserID NCHAR(20) NOT NULL,
+UserName NVARCHAR(40) NOT NULL,
+Password NCHAR(20) NOT NULL,
+Phone NVARCHAR(24) CHECK(Phone LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')  NOT NULL,
+Email NVARCHAR(40) NOT NULL,
+UNIQUE(UserName, Phone, Email),
+PRIMARY KEY(UserID)
+)
+GO
+CREATE TABLE Address(
+AddressID INT NOT NULL,
+CustomerName NVARCHAR(40) NOT NULL,
+ShipAddress NVARCHAR(255),
+Phone NVARCHAR(24) CHECK(Phone LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') NOT NULL,
+UserID NCHAR(20) REFERENCES Users(UserID) NOT NULL,
+PRIMARY KEY(AddressID)
+)
+GO
+CREATE TABLE ShipCompanies(
+ShipCompanyID INT NOT NULL,
+ShipCompanyName NVARCHAR(40) NOT NULL,
+Phone NVARCHAR(24) CHECK(Phone LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') NOT NULL UNIQUE,
+Email NVARCHAR(40) ,
+PRIMARY KEY(ShipCompanyID)
+)
+GO
+CREATE TABLE Categories(
+CategoryID INT NOT NULL,
+CategoryName NVARCHAR(40) NOT NULL,
+Description NVARCHAR(255),
+PRIMARY KEY(CategoryID)
+)
+GO
+CREATE TABLE Suppliers(
+SupplierID INT NOT NULL,
+CompanyName NVARCHAR(40) NOT NULL,
+ContactName NVARCHAR(40) NOT NULL,
+Address NVARCHAR(255) NOT NULL,
+Phone NVARCHAR(24) CHECK(Phone LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]') NOT NULL,
+Email NVARCHAR(40),
+PRIMARY KEY(SupplierID)
+)
+GO
+CREATE TABLE Products(
+ProductID INT NOT NULL,
+ProductName NVARCHAR(255) NOT NULL,
+UnitPrice MONEY NOT NULL,
+QuantityInStock SMALLINT NOT NULL,
+QuantityOrders SMALLINT NOT NULL,
+Description NVARCHAR(255),
+CategoryID INT REFERENCES Categories(CategoryID) NOT NULL,
+SupplierID INT REFERENCES Suppliers(SupplierID) NOT NULL,
+PRIMARY KEY(ProductID)
+)
+GO
+CREATE TABLE Orders(
+OrderID NCHAR(20) NOT NULL,
+OrderDate DATE check(OrderDate <= getDate()) NOT NULL,
+ShippedDate DATE ,
+ShipCost MONEY NOT NULL,
+PaymentMethod NVARCHAR(40) NOT NULL,
+Status NVARCHAR(40) NOT NULL,
+Note NVARCHAR(255),
+AddressID INT REFERENCES Address(AddressID) NOT NULL,
+UserID NCHAR(20) REFERENCES Users(UserID) NOT NULL,
+ShipCompanyID INT REFERENCES Shipcompanies(ShipCompanyID) NOT NULL,
+PRIMARY KEY(OrderID)
+)
+GO
+CREATE TABLE OrderItems(
+Quantity SMALLINT NOT NULL,
+SellPrice MONEY NOT NULL,
+Note NVARCHAR(255),
+OrderID NCHAR(20) REFERENCES Orders(OrderID) NOT NULL,
+ProductID INT REFERENCES Products(ProductID) NOT NULL,
+PRIMARY KEY(OrderID, ProductID)
+)
+GO
+CREATE TABLE Cart(
+UserID NCHAR(20) NOT NULL,
+ProductID INT REFERENCES Products(ProductID) NOT NULL,
+Quantity SMALLINT NOT NULL,
+SellPrice MONEY NOT NULL,
+PRIMARY KEY(UserID, ProductID)
+)
